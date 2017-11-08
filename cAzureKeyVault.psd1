@@ -3,7 +3,7 @@
     # Script module or binary module file associated with this manifest.
     RootModule           = 'cAzureKeyVault.psm1'
     
-    DscResourcesToExport = 'AzureKeyVaultSecret'
+    DscResourcesToExport = @('AzureKeyVaultSecret')
     
     # Version number of this module.
     ModuleVersion        = '1.0'
@@ -12,13 +12,13 @@
     GUID                 = '27d57ce5-c886-4095-94bf-1095763c84ea'
     
     # Author of this module
-    Author               = 'Mimeo.com'
+    Author               = 'nshenoy@mimeo.com'
     
     # Company or vendor of this module
-    CompanyName          = 'Mimeo.com'
+    CompanyName          = 'Mimeo, Inc.'
     
     # Description of the functionality provided by this module
-    # Description = ''
+    Description = 'Community Azure Key Vault DSC resource for retrieving Key Vault secrets.'
     
     # Minimum version of the Windows PowerShell engine required by this module
     PowerShellVersion    = '5.0'

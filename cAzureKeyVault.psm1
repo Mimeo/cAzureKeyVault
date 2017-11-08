@@ -56,7 +56,7 @@ class AzureKeyVaultSecret {
     [string] $FileSize
 
     [void] Set() {
-        $this.VerifyModuleDependencies
+        $this.VerifyModuleDependencies()
 
         $fileExists = $this.TestFilePath($this.Path)
         if ($this.Ensure -eq [Ensure]::Present) {
@@ -73,7 +73,7 @@ class AzureKeyVaultSecret {
                     }
                 }
                 catch {
-                    if($this.TestFilePath($this.Path)) {
+                    if ($this.TestFilePath($this.Path)) {
                         Remove-Item -LiteralPath $this.Path -Force
                     }
                     throw $_
@@ -90,7 +90,6 @@ class AzureKeyVaultSecret {
 
     [bool] Test() {
         $present = $this.TestFilePath($this.Path)
-
         if ($this.Ensure -eq [Ensure]::Present) {
             return $present
         }
@@ -146,14 +145,16 @@ class AzureKeyVaultSecret {
     #>
     [void] VerifyModuleDependencies() {
         $dependentModules = @(
-            "AzureRM.profile",
-            "AzureRM.KeyVault"
-        )
-
+            "AzureRM.Profile", 
+            "AzureRM.KeyVault")
+        $this.VerifyModuleDependencies($dependentModules)
+    }
+        
+    [void] VerifyModuleDependencies([string[]]$dependentModules) {
         $dependentModules | % {
-            if (-not(Get-Module -Name $_ -ListAvailable)) {
+            if (-not(Get-Module -Name $_ -ListAvailable -Refresh)) {
                 $exception = New-Object System.InvalidOperationException "Please ensure that the $_ Powershell module is installed"
-                $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "ModuleNotFound", [System.Management.Automation.ErrorCategory]::ObjectNotFound, $null
+                $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "ModuleNotFound", ObjectNotFound, $null
                 throw $errorRecord
             }
         }
