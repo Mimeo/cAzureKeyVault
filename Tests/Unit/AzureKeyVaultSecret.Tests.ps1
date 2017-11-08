@@ -5,41 +5,8 @@ using module "..\..\cAzureKeyVault.psm1"
 $scriptPath = $MyInvocation.MyCommand.Path
 
 Describe "AzureKeyVaultSecret" {
-
-    AfterAll {
-        Get-Module -Name TestModule1 | Remove-Module
-        Get-Module -Name TestModule2 | Remove-Module
-    }
-
-    Context "[Helper] TestFilePath" {
-        It "Should return $true if the file is present" {
-            $sut = [AzureKeyVaultSecret]::new()
-            $sut.TestFilePath($scriptPath) | Should be $true
-        }
-
-        It "Should return `$false if file not present" {
-            $sut = [AzureKeyVaultSecret]::new()
-            Mock Get-ChildItem {return $null}
-
-            $sut.TestFilePath("notexists") | Should be $false
-        }
-
-        It "Should return `$false if location is a directory" {
-            $sut = [AzureKeyVaultSecret]::new()
-            Mock Get-ChildItem {return (New-Object System.IO.FileInfo(Split-Path -Parent $MyInvocation.MyCommand.Path))}
-
-            $sut.TestFilePath("notAFile") | Should be $false
-        }      
-
-        It "Should return `$false if location is a container" {
-            $sut = [AzureKeyVaultSecret]::new()
-            Mock Get-ChildItem {return (New-Object System.IO.FileInfo("Cert:\LocalMachine"))}
-
-            $sut.TestFilePath("notValid") | Should be $false
-        }      
-    }
-
-    Context "Testing the Test() Method" {
+    
+    Context "[AzureKeyVaultSecret]::Test()" {
 
         It "Should return `$false if file not present and Ensure is Present" {
             $sut = [AzureKeyVaultSecret]::new()
@@ -73,8 +40,38 @@ Describe "AzureKeyVaultSecret" {
             $sut.Test() | Should be $false
         }
     }
+}
+Describe "AzureKeyVaultSecret.Helpers" {
+        
+    Context "[AzureKeyVaultSecret]::TestFilePath()" {
+        It "Should return $true if the file is present" {
+            $sut = [AzureKeyVaultSecret]::new()
+            $sut.TestFilePath($scriptPath) | Should be $true
+        }
 
-    Context "[Helper] VerifyModuleDependencies" {    
+        It "Should return `$false if file not present" {
+            $sut = [AzureKeyVaultSecret]::new()
+            Mock Get-ChildItem {return $null}
+
+            $sut.TestFilePath("notexists") | Should be $false
+        }
+
+        It "Should return `$false if location is a directory" {
+            $sut = [AzureKeyVaultSecret]::new()
+            Mock Get-ChildItem {return (New-Object System.IO.FileInfo(Split-Path -Parent $MyInvocation.MyCommand.Path))}
+
+            $sut.TestFilePath("notAFile") | Should be $false
+        }      
+
+        It "Should return `$false if location is a container" {
+            $sut = [AzureKeyVaultSecret]::new()
+            Mock Get-ChildItem {return (New-Object System.IO.FileInfo("Cert:\LocalMachine"))}
+
+            $sut.TestFilePath("notValid") | Should be $false
+        }      
+    }
+
+    Context "[AzureKeyVaultSecret]::VerifyModuleDependencies()" {    
         BeforeAll {
             $testModulesPath = Join-Path -Path (Split-Path $scriptPath) -ChildPath "TestModules"
             $env:PSModulePath += ";$testModulesPath"
@@ -105,5 +102,4 @@ Describe "AzureKeyVaultSecret" {
             {$sut.VerifyModuleDependencies($modules)} | Should throw
         }
     }        
-
 }
