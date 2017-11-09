@@ -57,19 +57,18 @@ class AzureKeyVaultSecret {
 
     [void] Set() {
         $this.VerifyModuleDependencies()
-
         $fileExists = $this.TestFilePath($this.Path)
         if ($this.Ensure -eq [Ensure]::Present) {
             if (-not $fileExists) {
                 try {
-                    Login-AzureRmAccount -ServicePrincipal -Credential $this.Credential -TenantId $this.TenantId
-                    $keyVaultSecret = Get-AzureKeyVaultSecret -VaultName $this.VaultName -Name $this.SecretName
+                    LoginAzureRmAccount -Credential $this.Credential -TenantId $this.TenantId
+                    $keyVaultSecret = GetAzureKeyVaultSecret -VaultName $this.VaultName -Name $this.SecretName
                     if ($this.Base64Decode) {
                         $bytes = [System.Convert]::FromBase64String($keyVaultSecret.SecretValueText)
                         [System.IO.File]::WriteAllBytes($this.Path, $bytes)
                     }
                     else {
-                        Set-Content -Path $this.Path -Value $keyVaultSecret.SecretValueText
+                        Set-Content -Path $this.Path -Value $keyVaultSecret.SecretValueText 
                     }
                 }
                 catch {
@@ -160,4 +159,12 @@ class AzureKeyVaultSecret {
         }
     }
 
+}
+
+Function LoginAzureRmAccount([PSCredential]$Credential, [string]$TenantId) {
+    Login-AzureRmAccount -ServicePrincipal -Credential $Credential -TenantId $TenantId
+}
+
+Function GetAzureKeyVaultSecret([string]$VaultName, [string]$Name) {
+    return Get-AzureKeyVaultSecret -VaultName $VaultName -Name $Name
 }

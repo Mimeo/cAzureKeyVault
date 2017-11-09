@@ -1,3 +1,4 @@
 *.mof
 !*.schema.mof
 TestResults.xml
+**/TestResults
