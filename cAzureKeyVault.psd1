@@ -6,7 +6,7 @@
     DscResourcesToExport = @('AzureKeyVaultSecret')
     
     # Version number of this module.
-    ModuleVersion        = '1.0'
+    ModuleVersion        = '1.0.0'
     
     # ID used to uniquely identify this module
     GUID                 = '27d57ce5-c886-4095-94bf-1095763c84ea'
