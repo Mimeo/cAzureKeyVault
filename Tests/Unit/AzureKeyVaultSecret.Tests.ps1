@@ -1,7 +1,7 @@
 <#
     Pester unit tests for the cAzureKeyVault DSC module.
 #>
-using module "..\..\cAzureKeyVault.psm1"
+using module "..\..\cAzureKeyVault\cAzureKeyVault.psm1"
 $scriptPath = $MyInvocation.MyCommand.Path
 $testResultsPath = Join-Path -Path (Split-Path $scriptPath) -ChildPath "TestResults"
 if (Test-Path $testResultsPath) {
