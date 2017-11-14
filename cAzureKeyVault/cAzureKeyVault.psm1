@@ -68,7 +68,8 @@ class AzureKeyVaultSecret {
                         [System.IO.File]::WriteAllBytes($this.Path, $bytes)
                     }
                     else {
-                        Set-Content -Path $this.Path -Value $keyVaultSecret.SecretValueText 
+                        # Encrypt the secret value. Note that this must be decrypted using the same PsDscRunAsCredential used in this step.
+                        Set-Content -Path $this.Path -Value (ConvertTo-SecureString $keyVaultSecret.SecretValueText -AsPlainText -Force | ConvertFrom-SecureString)
                     }
                 }
                 catch {

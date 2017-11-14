@@ -33,7 +33,13 @@ Describe "AzureKeyVaultSecret" {
 
             {$sut.Set()} | Should not throw
             Test-Path $sut.Path | Should Be $true
-            $sut.Path | Should FileContentMatch "successfully retrieve a key vault secret value"
+            $sut.Path | Should not FileContentMatch "successfully retrieve a key vault secret value"
+
+            $encryptedValue = Get-Content $sut.Path | ConvertTo-SecureString
+            $bstr = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($encryptedValue)   
+            $secretValuePlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
+            $secretValuePlainText | Should Be "Set() successfully retrieve a key vault secret value"
+
             Assert-VerifiableMocks
         }
 
