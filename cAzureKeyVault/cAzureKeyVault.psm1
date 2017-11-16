@@ -55,25 +55,26 @@ class AzureKeyVaultSecret {
     [DscProperty(NotConfigurable)]
     [string] $FileSize
 
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", "")]
     [void] Set() {
-        $this.VerifyModuleDependencies
-
+        $this.VerifyModuleDependencies()
         $fileExists = $this.TestFilePath($this.Path)
         if ($this.Ensure -eq [Ensure]::Present) {
             if (-not $fileExists) {
                 try {
-                    Login-AzureRmAccount -ServicePrincipal -Credential $this.Credential -TenantId $this.TenantId
-                    $keyVaultSecret = Get-AzureKeyVaultSecret -VaultName $this.VaultName -Name $this.SecretName
+                    LoginAzureRmAccount -Credential $this.Credential -TenantId $this.TenantId
+                    $keyVaultSecret = GetAzureKeyVaultSecret -VaultName $this.VaultName -Name $this.SecretName
                     if ($this.Base64Decode) {
                         $bytes = [System.Convert]::FromBase64String($keyVaultSecret.SecretValueText)
                         [System.IO.File]::WriteAllBytes($this.Path, $bytes)
                     }
                     else {
-                        Set-Content -Path $this.Path -Value $keyVaultSecret.SecretValueText
+                        # Encrypt the secret value. Note that this must be decrypted using the same PsDscRunAsCredential used in this step.
+                        Set-Content -Path $this.Path -Value (ConvertTo-SecureString $keyVaultSecret.SecretValueText -AsPlainText -Force | ConvertFrom-SecureString)
                     }
                 }
                 catch {
-                    if($this.TestFilePath($this.Path)) {
+                    if ($this.TestFilePath($this.Path)) {
                         Remove-Item -LiteralPath $this.Path -Force
                     }
                     throw $_
@@ -90,7 +91,6 @@ class AzureKeyVaultSecret {
 
     [bool] Test() {
         $present = $this.TestFilePath($this.Path)
-
         if ($this.Ensure -eq [Ensure]::Present) {
             return $present
         }
@@ -146,17 +146,27 @@ class AzureKeyVaultSecret {
     #>
     [void] VerifyModuleDependencies() {
         $dependentModules = @(
-            "AzureRM.profile",
-            "AzureRM.KeyVault"
-        )
-
+            "AzureRM.Profile", 
+            "AzureRM.KeyVault")
+        $this.VerifyModuleDependencies($dependentModules)
+    }
+        
+    [void] VerifyModuleDependencies([string[]]$dependentModules) {
         $dependentModules | % {
-            if (-not(Get-Module -Name $_ -ListAvailable)) {
+            if (-not(Get-Module -Name $_ -ListAvailable -Refresh)) {
                 $exception = New-Object System.InvalidOperationException "Please ensure that the $_ Powershell module is installed"
-                $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "ModuleNotFound", [System.Management.Automation.ErrorCategory]::ObjectNotFound, $null
+                $errorRecord = New-Object System.Management.Automation.ErrorRecord $exception, "ModuleNotFound", ObjectNotFound, $null
                 throw $errorRecord
             }
         }
     }
 
+}
+
+Function LoginAzureRmAccount([PSCredential]$Credential, [string]$TenantId) {
+    Login-AzureRmAccount -ServicePrincipal -Credential $Credential -TenantId $TenantId
+}
+
+Function GetAzureKeyVaultSecret([string]$VaultName, [string]$Name) {
+    return Get-AzureKeyVaultSecret -VaultName $VaultName -Name $Name
 }
