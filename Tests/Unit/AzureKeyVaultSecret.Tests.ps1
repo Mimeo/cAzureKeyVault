@@ -40,7 +40,7 @@ Describe "AzureKeyVaultSecret" {
             $secretValuePlainText = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($bstr)
             $secretValuePlainText | Should Be "Set() successfully retrieve a key vault secret value"
 
-            Assert-VerifiableMocks
+            Assert-VerifiableMock
         }
 
         It "Should successfully retrieve and Base64 decode a Base64 encoded key vault secret" {
@@ -66,7 +66,7 @@ Describe "AzureKeyVaultSecret" {
             {$sut.Set()} | Should not throw
             Test-Path $sut.Path | Should Be $true
             $sut.Path | Should FileContentMatch "successfully retrieve and base64 decode a base64 encoded key vault secret value"
-            Assert-VerifiableMocks
+            Assert-VerifiableMock
         }
 
         It "Should not persist file if exception is thrown" {
@@ -89,7 +89,7 @@ Describe "AzureKeyVaultSecret" {
 
             {$sut.Set()} | Should throw
             Test-Path $sut.Path | Should Be $false
-            Assert-VerifiableMocks
+            Assert-VerifiableMock
             Assert-MockCalled GetAzureKeyVaultSecret -ModuleName cAzureKeyVault -Exactly 0 -Scope It
         }
 
@@ -100,7 +100,7 @@ Describe "AzureKeyVaultSecret" {
                     SecretValueText = "some text"
                 }
             }
-            Mock Remove-Item { } -Verifiable
+            Mock Remove-Item -MockWith { return $true }
 
             $sut = [AzureKeyVaultSecret]::new()
             $sut.SecretName = "someSecret"
@@ -117,7 +117,6 @@ Describe "AzureKeyVaultSecret" {
             Test-Path $sut.Path | Should Be $false
             Assert-MockCalled LoginAzureRmAccount -ModuleName cAzureKeyVault -Exactly 0 -Scope It
             Assert-MockCalled GetAzureKeyVaultSecret -ModuleName cAzureKeyVault -Exactly 0 -Scope It
-            Assert-VerifiableMocks
         }
     }
 
