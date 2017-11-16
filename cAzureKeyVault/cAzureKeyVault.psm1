@@ -55,6 +55,7 @@ class AzureKeyVaultSecret {
     [DscProperty(NotConfigurable)]
     [string] $FileSize
 
+    [Diagnostics.CodeAnalysis.SuppressMessageAttribute("PSAvoidUsingConvertToSecureStringWithPlainText", "")]
     [void] Set() {
         $this.VerifyModuleDependencies()
         $fileExists = $this.TestFilePath($this.Path)
