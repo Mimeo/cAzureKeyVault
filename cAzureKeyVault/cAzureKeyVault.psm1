@@ -8,7 +8,7 @@ enum Ensure {
 #>
 
 [DscResource()]
-class AzureKeyVaultSecret {
+class cAzureKeyVaultSecret {
 
     <# 
         Key Vault secret name to retrieve
