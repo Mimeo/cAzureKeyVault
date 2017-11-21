@@ -99,7 +99,7 @@ class cAzureKeyVaultSecret {
         }
     }
 
-    [AzureKeyVaultSecret] Get() {
+    [cAzureKeyVaultSecret] Get() {
         $present = $this.TestFilePath($this.Path)
 
         if ($present) {
