@@ -10,8 +10,8 @@ if (Test-Path $testResultsPath) {
 
 New-Item -Type Directory $testResultsPath | Out-Null
 
-Describe "AzureKeyVaultSecret" {
-    Context "[AzureKeyVaultSecret]::Set()" {
+Describe "cAzureKeyVaultSecret" {
+    Context "[cAzureKeyVaultSecret]::Set()" {
 
         It "Should successfully retrieve a key vault secret value" {
             Mock LoginAzureRmAccount -Verifiable -ModuleName cAzureKeyVault -MockWith { return $null }
@@ -22,7 +22,7 @@ Describe "AzureKeyVaultSecret" {
             }
 
             Mock Remove-Item -MockWith {return $null}
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $sut.SecretName = "someSecret"
             $sut.VaultName = "someVault"
             $sut.Path = Join-Path -Path $testResultsPath -ChildPath "SetShouldSuccessfullyRetrieveAKeyVaultSecretValue"
@@ -54,7 +54,7 @@ Describe "AzureKeyVaultSecret" {
             }
 
             Mock Remove-Item -MockWith {return $null}
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $sut.SecretName = "someSecret"
             $sut.VaultName = "someVault"
             $sut.Path = Join-Path -Path $testResultsPath -ChildPath "SetShouldSuccessfullyRetrieveAndDecodeEncodedKeyVaultSecretValue"
@@ -78,7 +78,7 @@ Describe "AzureKeyVaultSecret" {
             }
 
             Mock Remove-Item -MockWith {return $null}
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $sut.SecretName = "someSecret"
             $sut.VaultName = "someVault"
             $sut.Path = Join-Path -Path $testResultsPath -ChildPath "SetShouldThrowAndNotPersistFile"
@@ -102,7 +102,7 @@ Describe "AzureKeyVaultSecret" {
             }
             Mock Remove-Item -MockWith { return $true }
 
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $sut.SecretName = "someSecret"
             $sut.VaultName = "someVault"
             $sut.Path = Join-Path -Path $testResultsPath -ChildPath "SetShouldDeleteThisFileIfEnsureIsAbsent"
@@ -120,10 +120,10 @@ Describe "AzureKeyVaultSecret" {
         }
     }
 
-    Context "[AzureKeyVaultSecret]::Test()" {
+    Context "[cAzureKeyVaultSecret]::Test()" {
 
         It "Should return `$false if file not present and Ensure is Present" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $sut.Path = "fileNotPresent"
             $sut.Ensure = "Present"
 
@@ -131,7 +131,7 @@ Describe "AzureKeyVaultSecret" {
         }
 
         It "Should return `$true if file not present and Ensure is Absent" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $sut.Path = "fileNotPresent"
             $sut.Ensure = "Absent"
 
@@ -139,7 +139,7 @@ Describe "AzureKeyVaultSecret" {
         }
 
         It "Should return `$true if file is present and Ensure is Present" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $sut.Path = $scriptPath
             $sut.Ensure = "Present"
 
@@ -147,7 +147,7 @@ Describe "AzureKeyVaultSecret" {
         }
 
         It "Should return `$false if file is present and Ensure is Absent" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $sut.Path = $scriptPath
             $sut.Ensure = "Absent"
 
@@ -155,37 +155,37 @@ Describe "AzureKeyVaultSecret" {
         }
     }
 }
-Describe "AzureKeyVaultSecret.Helpers" {
+Describe "cAzureKeyVaultSecret.Helpers" {
         
-    Context "[AzureKeyVaultSecret]::TestFilePath()" {
+    Context "[cAzureKeyVaultSecret]::TestFilePath()" {
         It "Should return $true if the file is present" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $sut.TestFilePath($scriptPath) | Should be $true
         }
 
         It "Should return `$false if file not present" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             Mock Get-ChildItem {return $null}
 
             $sut.TestFilePath("notexists") | Should be $false
         }
 
         It "Should return `$false if location is a directory" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             Mock Get-ChildItem {return (New-Object System.IO.FileInfo(Split-Path -Parent $MyInvocation.MyCommand.Path))}
 
             $sut.TestFilePath("notAFile") | Should be $false
         }      
 
         It "Should return `$false if location is a container" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             Mock Get-ChildItem {return (New-Object System.IO.FileInfo("Cert:\LocalMachine"))}
 
             $sut.TestFilePath("notValid") | Should be $false
         }      
     }
 
-    Context "[AzureKeyVaultSecret]::VerifyModuleDependencies()" {    
+    Context "[cAzureKeyVaultSecret]::VerifyModuleDependencies()" {    
         BeforeAll {
             $testModulesPath = Join-Path -Path (Split-Path $scriptPath) -ChildPath "TestModules"
             $env:PSModulePath += ";$testModulesPath"
@@ -199,19 +199,19 @@ Describe "AzureKeyVaultSecret.Helpers" {
         }
 
         It "Should not throw if the modules are present" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $modules = @("TestModule1", "TestModule2")
             {$sut.VerifyModuleDependencies($modules)} | Should not throw
         }
 
         It "Should throw if the modules are not present" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $modules = @("TestModuleX", "TestModuleY")
             {$sut.VerifyModuleDependencies($modules)} | Should throw
         }
 
         It "Should throw if one of the modules are not present" {
-            $sut = [AzureKeyVaultSecret]::new()
+            $sut = [cAzureKeyVaultSecret]::new()
             $modules = @("TestModule1", "TestModuleZ")
             {$sut.VerifyModuleDependencies($modules)} | Should throw
         }
